@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@paypayopa/paypayopa-sdk-node": "^2.1.0",
     "@prisma/client": "^6.4.1",
     "@radix-ui/react-slot": "^1.1.2",
     "class-variance-authority": "^0.7.1",
