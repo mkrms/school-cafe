@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- ベースの円 -->
+  <circle cx="100" cy="100" r="90" fill="#f97316" />
+  <circle cx="100" cy="100" r="80" fill="white" />
+  
+  <!-- 内側の要素 -->
+  <g transform="translate(50, 40) scale(0.5)">
+    <!-- お皿のアイコン -->
+    <circle cx="100" cy="100" r="60" fill="#f0f0f0" stroke="#d1d1d1" stroke-width="4" />
+    
+    <!-- 箸 -->
+    <rect x="150" y="30" width="8" height="120" rx="2" transform="rotate(30, 150, 30)" fill="#8b4513" />
+    <rect x="170" y="25" width="8" height="120" rx="2" transform="rotate(30, 170, 25)" fill="#a0522d" />
+    
+    <!-- 食事アイコン -->
+    <circle cx="90" cy="90" r="25" fill="#f97316" />
+    <circle cx="110" cy="110" r="20" fill="#84cc16" />
+    <circle cx="75" cy="110" r="15" fill="#ef4444" />
+  </g>
+</svg>
