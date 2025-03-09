@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FooterNavigation } from "@/components/layout/footer-navigation";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="ja">
       <body>
         {children}
+        <FooterNavigation />
       </body>
     </html>
   );

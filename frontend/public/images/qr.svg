@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 250">
+  <rect width="250" height="250" fill="white" />
+  
+  <!-- QRコードの模擬パターン - 実際のQRコードではないので読み取りはできません -->
+  <rect x="25" y="25" width="200" height="200" fill="white" stroke="black" stroke-width="2" />
+  
+  <!-- 位置検出パターン（左上） -->
+  <rect x="40" y="40" width="35" height="35" fill="black" />
+  <rect x="45" y="45" width="25" height="25" fill="white" />
+  <rect x="50" y="50" width="15" height="15" fill="black" />
+  
+  <!-- 位置検出パターン（右上） -->
+  <rect x="175" y="40" width="35" height="35" fill="black" />
+  <rect x="180" y="45" width="25" height="25" fill="white" />
+  <rect x="185" y="50" width="15" height="15" fill="black" />
+  
+  <!-- 位置検出パターン（左下） -->
+  <rect x="40" y="175" width="35" height="35" fill="black" />
+  <rect x="45" y="180" width="25" height="25" fill="white" />
+  <rect x="50" y="185" width="15" height="15" fill="black" />
+  
+  <!-- 内部パターン - ランダムな黒のセル -->
+  <rect x="90" y="40" width="10" height="10" fill="black" />
+  <rect x="110" y="40" width="10" height="10" fill="black" />
+  <rect x="130" y="40" width="10" height="10" fill="black" />
+  <rect x="150" y="40" width="10" height="10" fill="black" />
+  
+  <rect x="40" y="90" width="10" height="10" fill="black" />
+  <rect x="60" y="90" width="10" height="10" fill="black" />
+  <rect x="100" y="90" width="10" height="10" fill="black" />
+  <rect x="140" y="90" width="10" height="10" fill="black" />
+  <rect x="160" y="90" width="10" height="10" fill="black" />
+  <rect x="180" y="90" width="10" height="10" fill="black" />
+  
+  <rect x="50" y="110" width="10" height="10" fill="black" />
+  <rect x="70" y="110" width="10" height="10" fill="black" />
+  <rect x="90" y="110" width="10" height="10" fill="black" />
+  <rect x="130" y="110" width="10" height="10" fill="black" />
+  <rect x="170" y="110" width="10" height="10" fill="black" />
+  
+  <rect x="60" y="130" width="10" height="10" fill="black" />
+  <rect x="80" y="130" width="10" height="10" fill="black" />
+  <rect x="120" y="130" width="10" height="10" fill="black" />
+  <rect x="140" y="130" width="10" height="10" fill="black" />
+  <rect x="160" y="130" width="10" height="10" fill="black" />
+  
+  <rect x="40" y="150" width="10" height="10" fill="black" />
+  <rect x="70" y="150" width="10" height="10" fill="black" />
+  <rect x="100" y="150" width="10" height="10" fill="black" />
+  <rect x="120" y="150" width="10" height="10" fill="black" />
+  <rect x="150" y="150" width="10" height="10" fill="black" />
+  <rect x="190" y="150" width="10" height="10" fill="black" />
+  
+  <rect x="90" y="180" width="10" height="10" fill="black" />
+  <rect x="110" y="180" width="10" height="10" fill="black" />
+  <rect x="130" y="180" width="10" height="10" fill="black" />
+  <rect x="150" y="180" width="10" height="10" fill="black" />
+  <rect x="170" y="180" width="10" height="10" fill="black" />
+  
+  <!-- 中央に注文番号表示 -->
+  <rect x="85" y="115" width="80" height="20" fill="white" />
+  <text x="125" y="130" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle">ORD123456789</text>
+</svg>
