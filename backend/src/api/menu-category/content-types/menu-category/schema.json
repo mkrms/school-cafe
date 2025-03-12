@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "menu_categories",
+  "info": {
+    "singularName": "menu-category",
+    "pluralName": "menu-categories",
+    "displayName": "Menu Category",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "displayOrder": {
+      "type": "integer",
+      "required": true
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "menu_items": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::menu-item.menu-item",
+      "mappedBy": "menu_category"
+    }
+  }
+}

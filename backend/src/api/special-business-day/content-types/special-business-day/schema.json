@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "special_business_days",
+  "info": {
+    "singularName": "special-business-day",
+    "pluralName": "special-business-days",
+    "displayName": "Special Business Day"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "specialDate": {
+      "type": "date",
+      "required": true
+    },
+    "openTime": {
+      "type": "time"
+    },
+    "closeTime": {
+      "type": "time"
+    },
+    "isClosed": {
+      "type": "boolean",
+      "default": false
+    },
+    "reason": {
+      "type": "string"
+    }
+  }
+}
