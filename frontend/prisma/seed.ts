@@ -11,6 +11,7 @@ async function main() {
     update: {},
     create: {
       id: uuidv4(),
+      auth_id: uuidv4(),
       email: 'test@example.com',
       full_name: 'テスト ユーザー',
     },

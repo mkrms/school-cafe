@@ -27,24 +27,24 @@ export default function HomePage() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        
+
         // カテゴリーを取得
         const categoriesResponse = await getMenuCategories()
         setCategories(categoriesResponse.data)
-        
+
         // 初期表示では、すべてのメニュー項目を取得
         await fetchAllMenuItems()
-        
+
       } catch (err) {
         console.error("Error fetching data:", err)
         setError("データの取得中にエラーが発生しました。")
         setLoading(false)
       }
     }
-    
+
     fetchData()
   }, [])
-  
+
   // すべてのメニュー項目を取得する関数
   const fetchAllMenuItems = async () => {
     try {
@@ -58,7 +58,7 @@ export default function HomePage() {
       setLoading(false)
     }
   }
-  
+
   // カテゴリーが選択された時の処理
   useEffect(() => {
     if (selectedCategory === null) {
@@ -78,11 +78,11 @@ export default function HomePage() {
           setLoading(false)
         }
       }
-      
+
       fetchCategoryItems()
     }
   }, [selectedCategory])
-  
+
   // 画像URLを取得する関数
   const getImageUrl = (item: MenuItem): string => {
     if (item.image?.formats?.medium?.url) {
@@ -93,19 +93,19 @@ export default function HomePage() {
       return '/images/menu-placeholder.jpg';
     }
   }
-  
+
   // カテゴリー名を取得する関数
   const getCategoryName = (item: MenuItem): string | null => {
     return item.menu_category?.name || null;
   }
-  
+
   // カートに商品を追加する処理
   const handleAddToCart = (item: MenuItem) => {
     if (item.soldOut) {
       toast.error("申し訳ありません、この商品は売り切れです");
       return;
     }
-    
+
     addItem({
       id: item.id.toString(),
       documentId: item.documentId,
@@ -114,7 +114,7 @@ export default function HomePage() {
       quantity: 1,
       imageUrl: getImageUrl(item),
     });
-    
+
     toast.success(`${item.name}をカートに追加しました`);
   }
 
@@ -136,9 +136,9 @@ export default function HomePage() {
             <Skeleton className="h-12 w-full rounded-full" />
           </div>
         ) : (
-          <CategoryFilter 
-            categories={categories} 
-            onSelectCategory={setSelectedCategory} 
+          <CategoryFilter
+            categories={categories}
+            onSelectCategory={setSelectedCategory}
           />
         )}
 
@@ -146,8 +146,8 @@ export default function HomePage() {
         {error ? (
           <div className="p-4 text-center text-destructive">
             <p>{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
+            <button
+              onClick={() => window.location.reload()}
               className="mt-2 text-primary underline"
             >
               再読み込み

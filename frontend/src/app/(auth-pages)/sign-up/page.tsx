@@ -1,8 +1,8 @@
-// src/app/login/page.tsx
+// src/app/sign-up/page.tsx
 import Image from "next/image"
-import { LoginForm } from "@/components/auth/login-form"
+import { RegisterForm } from "@/components/auth/register-form"
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="w-full max-w-md space-y-8">
@@ -18,7 +18,7 @@ export default function LoginPage() {
           <p className="text-muted-foreground">学食モバイルオーダーシステム</p>
         </div>
 
-        <LoginForm />
+        <RegisterForm />
       </div>
     </div>
   )

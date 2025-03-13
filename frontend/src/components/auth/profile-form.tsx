@@ -1,28 +1,62 @@
+// src/components/auth/profile-form.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 
 // ユーザープロフィールの型定義
 type UserProfile = {
   fullName: string
   email: string
-  studentId?: string
-  phoneNumber?: string
 }
 
 type ProfileFormProps = {
-  profile: UserProfile
+  userId: string
   onSave: (profile: UserProfile) => void
   isLoading?: boolean
 }
 
-export function ProfileForm({ profile, onSave, isLoading = false }: ProfileFormProps) {
-  const [formData, setFormData] = useState<UserProfile>(profile)
+export function ProfileForm({ userId, onSave, isLoading = false }: ProfileFormProps) {
+  const [formData, setFormData] = useState<UserProfile>({
+    fullName: "",
+    email: ""
+  })
+  const [fetchLoading, setFetchLoading] = useState(true)
+
+  // ユーザーデータを取得
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setFetchLoading(true)
+        const response = await fetch(`/api/users/${userId}`)
+
+        if (!response.ok) {
+          throw new Error("ユーザー情報の取得に失敗しました")
+        }
+
+        const userData = await response.json()
+
+        setFormData({
+          fullName: userData.full_name || "",
+          email: userData.email || "",
+        })
+      } catch (error) {
+        console.error("Error fetching user profile:", error)
+        toast.error("プロフィールの読み込みに失敗しました")
+      } finally {
+        setFetchLoading(false)
+      }
+    }
+
+    if (userId) {
+      fetchUserProfile()
+    }
+  }, [userId])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -35,9 +69,33 @@ export function ProfileForm({ profile, onSave, isLoading = false }: ProfileFormP
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     onSave(formData)
+  }
 
-    // 実際のアプリではAPIの結果を待って成功/失敗に応じてトーストを表示
-    toast.success("プロフィールが変更されました")
+  if (fetchLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-8 w-3/4 mb-2" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-1/4" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-1/4" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-1/4" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Skeleton className="h-10 w-full" />
+        </CardFooter>
+      </Card>
+    )
   }
 
   return (
@@ -67,33 +125,14 @@ export function ProfileForm({ profile, onSave, isLoading = false }: ProfileFormP
               value={formData.email}
               onChange={handleChange}
               required
+              disabled  // メールアドレスは変更不可
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="studentId">学籍番号（任意）</Label>
-            <Input
-              id="studentId"
-              name="studentId"
-              value={formData.studentId || ""}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phoneNumber">電話番号（任意）</Label>
-            <Input
-              id="phoneNumber"
-              name="phoneNumber"
-              type="tel"
-              value={formData.phoneNumber || ""}
-              onChange={handleChange}
-            />
-          </div>
         </CardContent>
 
         <CardFooter>
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full mt-3" disabled={isLoading}>
             {isLoading ? "保存中..." : "変更を保存"}
           </Button>
         </CardFooter>
