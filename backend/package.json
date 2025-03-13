@@ -1,5 +1,5 @@
 {
-  "name": "cms",
+  "name": "backend",
   "version": "0.1.0",
   "private": true,
   "description": "A Strapi application",
@@ -35,6 +35,6 @@
     "npm": ">=6.0.0"
   },
   "strapi": {
-    "uuid": "cabff7a3-9269-4c43-a862-4b7a4bb0d86c"
+    "uuid": "96544913-9ba8-4a81-b74e-a488259db9e8"
   }
 }

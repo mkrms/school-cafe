@@ -3,22 +3,14 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-
-// 仮のカテゴリデータ
-const sampleCategories = [
-  { id: 1, name: "定食" },
-  { id: 2, name: "丼物" },
-  { id: 3, name: "麺類" },
-  { id: 4, name: "カレー" },
-  { id: 5, name: "サイドメニュー" },
-  { id: 6, name: "ドリンク" }
-]
+import { MenuCategory } from "@/types/strapi"
 
 type CategoryFilterProps = {
+  categories: MenuCategory[]
   onSelectCategory: (categoryId: number | null) => void
 }
 
-export function CategoryFilter({ onSelectCategory }: CategoryFilterProps) {
+export function CategoryFilter({ categories, onSelectCategory }: CategoryFilterProps) {
   const [activeCategory, setActiveCategory] = useState<number | null>(null)
 
   const handleCategoryClick = (categoryId: number | null) => {
@@ -37,8 +29,8 @@ export function CategoryFilter({ onSelectCategory }: CategoryFilterProps) {
           >
             すべて
           </Button>
-
-          {sampleCategories.map((category) => (
+          
+          {categories.map((category) => (
             <Button
               key={category.id}
               variant={activeCategory === category.id ? "default" : "outline"}

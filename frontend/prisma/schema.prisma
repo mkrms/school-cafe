@@ -9,6 +9,82 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name String @db.VarChar(255)
+  id         String   @id @default(uuid())
+  email      String   @unique
+  full_name  String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  orders     Order[]
+
+  @@map("users")
+}
+
+model Order {
+  id             String      @id @default(uuid())
+  user_id        String
+  total_amount   Decimal     @db.Decimal(10, 2)
+  status         String      @default("pending")
+  qr_code        String?
+  payment_id     String?
+  payment_status String?
+  notes          String?
+  cancel_reason  String?
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+  order_items    OrderItem[]
+  user           User        @relation(fields: [user_id], references: [id])
+  payments       Payment[]
+  print_logs     PrintLog[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id                 String   @id @default(uuid())
+  order_id           String
+  menu_item_name     String
+  quantity           Int
+  unit_price         Decimal  @db.Decimal(10, 2)
+  created_at         DateTime @default(now())
+  category_name      String?
+  strapi_menu_id     String
+  image_url          String?
+  strapi_category_id String?
+  order              Order    @relation(fields: [order_id], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id                  String   @id @default(uuid())
+  order_id            String
+  merchant_payment_id String?
+  provider            String
+  status              String
+  amount              Decimal  @db.Decimal(10, 2)
+  currency            String   @default("JPY")
+  code_type           String?
+  order_description   String?
+  is_authorization    Boolean  @default(false)
+  redirect_url        String?
+  redirect_type       String?
+  transaction_id      String?
+  response_data       Json?
+  created_at          DateTime @default(now())
+  order               Order    @relation(fields: [order_id], references: [id])
+
+  @@map("payments")
+}
+
+model PrintLog {
+  id              String   @id @default(uuid())
+  order_id        String
+  print_timestamp DateTime @default(now())
+  printer_name    String
+  status          String
+  error_message   String?
+  created_at      DateTime @default(now())
+  order           Order    @relation(fields: [order_id], references: [id])
+
+  @@map("print_logs")
 }

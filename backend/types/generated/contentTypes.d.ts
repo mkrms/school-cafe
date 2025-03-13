@@ -369,6 +369,162 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiBusinessHourBusinessHour
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'business_hours';
+  info: {
+    description: '';
+    displayName: 'Business Hour';
+    pluralName: 'business-hours';
+    singularName: 'business-hour';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    closeTime: Schema.Attribute.Time &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'15:00:00.000'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    dayOfWeek: Schema.Attribute.Enumeration<
+      [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday',
+      ]
+    > &
+      Schema.Attribute.Required;
+    isClosed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::business-hour.business-hour'
+    > &
+      Schema.Attribute.Private;
+    openTime: Schema.Attribute.Time &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'11:00:00.000'>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiMenuCategoryMenuCategory
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'menu_categories';
+  info: {
+    description: '';
+    displayName: 'Menu Category';
+    pluralName: 'menu-categories';
+    singularName: 'menu-category';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    displayOrder: Schema.Attribute.Integer & Schema.Attribute.Required;
+    isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::menu-category.menu-category'
+    > &
+      Schema.Attribute.Private;
+    menu_items: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::menu-item.menu-item'
+    >;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiMenuItemMenuItem extends Struct.CollectionTypeSchema {
+  collectionName: 'menu_items';
+  info: {
+    description: '';
+    displayName: 'Menu Item';
+    pluralName: 'menu-items';
+    singularName: 'menu-item';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    image: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::menu-item.menu-item'
+    > &
+      Schema.Attribute.Private;
+    menu_category: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::menu-category.menu-category'
+    >;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    price: Schema.Attribute.Decimal & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    soldOut: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiSpecialBusinessDaySpecialBusinessDay
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'special_business_days';
+  info: {
+    displayName: 'Special Business Day';
+    pluralName: 'special-business-days';
+    singularName: 'special-business-day';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    closeTime: Schema.Attribute.Time;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    isClosed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::special-business-day.special-business-day'
+    > &
+      Schema.Attribute.Private;
+    openTime: Schema.Attribute.Time;
+    publishedAt: Schema.Attribute.DateTime;
+    reason: Schema.Attribute.String;
+    specialDate: Schema.Attribute.Date & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -878,6 +1034,10 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::business-hour.business-hour': ApiBusinessHourBusinessHour;
+      'api::menu-category.menu-category': ApiMenuCategoryMenuCategory;
+      'api::menu-item.menu-item': ApiMenuItemMenuItem;
+      'api::special-business-day.special-business-day': ApiSpecialBusinessDaySpecialBusinessDay;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

@@ -1,83 +1,127 @@
+//src/app/page.tsx (メニュー一覧ページ)
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { CategoryFilter } from "@/components/menu/category-filter"
 import { MenuCard } from "@/components/menu/menu-card"
 import { BusinessHours } from "@/components/menu/business-hours"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
-
-// 仮のメニューデータ
-const sampleMenuItems = [
-  {
-    id: "1",
-    name: "唐揚げ定食",
-    price: 650,
-    description: "サクサクの唐揚げに、ご飯、味噌汁、サラダがセットになった定食です。",
-    imageUrl: "/images/menu-placeholder.svg",
-    categoryId: 1
-  },
-  {
-    id: "2",
-    name: "カレーライス",
-    price: 500,
-    description: "濃厚な味わいのカレーに、ふっくらご飯がセットです。",
-    imageUrl: "/images/menu-placeholder.svg",
-    categoryId: 4
-  },
-  {
-    id: "3",
-    name: "牛丼",
-    price: 580,
-    description: "甘辛く煮込んだ牛肉をご飯にのせた定番メニュー。",
-    imageUrl: "/images/menu-placeholder.svg",
-    categoryId: 2
-  },
-  {
-    id: "4",
-    name: "塩ラーメン",
-    price: 600,
-    description: "あっさりとした塩スープに、モチモチの麺が絡む一品。",
-    imageUrl: "/images/menu-placeholder.svg",
-    categoryId: 3
-  },
-  {
-    id: "5",
-    name: "醤油ラーメン",
-    price: 600,
-    description: "コクのある醤油スープに、モチモチの麺が絡む一品。",
-    imageUrl: "/images/menu-placeholder.svg",
-    categoryId: 3
-  },
-  {
-    id: "6",
-    name: "ポテトフライ",
-    price: 300,
-    description: "カリッと揚げたポテトフライ。単品でもセットでも人気です。",
-    imageUrl: "/images/menu-placeholder.svg",
-    categoryId: 5
-  }
-]
+import { getMenuCategories, getMenuItems, getMenuItemsByCategory, getStrapiMedia } from "@/lib/strapi"
+import { MenuCategory, MenuItem } from "@/types/strapi"
+import { Skeleton } from "@/components/ui/skeleton"
+import { CartDrawer } from "@/components/cart/cart-drawer"
+import { useCart } from "@/context/cart-context"
+import { toast } from "sonner"
 
 export default function HomePage() {
+  const [categories, setCategories] = useState<MenuCategory[]>([])
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
-  const [cartItemCount, setCartItemCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const { addItem } = useCart()
 
-  // カテゴリーでフィルタリングされたメニュー項目
-  const filteredMenuItems = selectedCategory
-    ? sampleMenuItems.filter(item => item.categoryId === selectedCategory)
-    : sampleMenuItems
+  // カテゴリーとメニュー項目を取得する
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
 
-  // カートに商品を追加する処理（実際には機能しない）
-  const handleAddToCart = (id: string) => {
-    setCartItemCount(prevCount => prevCount + 1)
-    // 実際の実装では、ここでカートに商品を追加するロジックを実装します
+        // カテゴリーを取得
+        const categoriesResponse = await getMenuCategories()
+        setCategories(categoriesResponse.data)
+
+        // 初期表示では、すべてのメニュー項目を取得
+        await fetchAllMenuItems()
+
+      } catch (err) {
+        console.error("Error fetching data:", err)
+        setError("データの取得中にエラーが発生しました。")
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  // すべてのメニュー項目を取得する関数
+  const fetchAllMenuItems = async () => {
+    try {
+      // メニュー項目を取得（カテゴリー情報も含む）
+      const menuItemsResponse = await getMenuItems()
+      setMenuItems(menuItemsResponse.data)
+      setLoading(false)
+    } catch (err) {
+      console.error("Error fetching all menu items:", err)
+      setError("メニューデータの取得中にエラーが発生しました。")
+      setLoading(false)
+    }
+  }
+
+  // カテゴリーが選択された時の処理
+  useEffect(() => {
+    if (selectedCategory === null) {
+      // すべてのメニューを表示
+      fetchAllMenuItems()
+    } else {
+      // 選択されたカテゴリーのメニューを表示
+      const fetchCategoryItems = async () => {
+        try {
+          setLoading(true)
+          const menuItemsResponse = await getMenuItemsByCategory(selectedCategory)
+          setMenuItems(menuItemsResponse.data)
+          setLoading(false)
+        } catch (err) {
+          console.error(`Error fetching menu items for category ${selectedCategory}:`, err)
+          setError("カテゴリーメニューの取得中にエラーが発生しました。")
+          setLoading(false)
+        }
+      }
+
+      fetchCategoryItems()
+    }
+  }, [selectedCategory])
+
+  // 画像URLを取得する関数
+  const getImageUrl = (item: MenuItem): string => {
+    if (item.image?.formats?.medium?.url) {
+      return getStrapiMedia(item.image.formats.medium.url) || '/images/menu-placeholder.jpg';
+    } else if (item.image?.url) {
+      return getStrapiMedia(item.image.url) || '/images/menu-placeholder.jpg';
+    } else {
+      return '/images/menu-placeholder.jpg';
+    }
+  }
+
+  // カテゴリー名を取得する関数
+  const getCategoryName = (item: MenuItem): string | null => {
+    return item.menu_category?.name || null;
+  }
+
+  // カートに商品を追加する処理
+  const handleAddToCart = (item: MenuItem) => {
+    if (item.soldOut) {
+      toast.error("申し訳ありません、この商品は売り切れです");
+      return;
+    }
+
+    addItem({
+      id: item.id.toString(),
+      documentId: item.documentId,
+      name: item.name,
+      price: item.price,
+      quantity: 1,
+      imageUrl: getImageUrl(item),
+    });
+
+    toast.success(`${item.name}をカートに追加しました`);
   }
 
   return (
     <div className="min-h-screen flex flex-col">
       {/* ヘッダー */}
-      <Header cartItemCount={cartItemCount} />
+      <Header />
 
       {/* メインコンテンツ */}
       <main className="flex-grow pb-4">
@@ -87,28 +131,64 @@ export default function HomePage() {
         </div>
 
         {/* カテゴリーフィルター */}
-        <CategoryFilter onSelectCategory={setSelectedCategory} />
+        {loading && !categories.length ? (
+          <div className="px-4 pt-4">
+            <Skeleton className="h-12 w-full rounded-full" />
+          </div>
+        ) : (
+          <CategoryFilter
+            categories={categories}
+            onSelectCategory={setSelectedCategory}
+          />
+        )}
 
         {/* メニュー一覧 */}
-        <div className="px-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {filteredMenuItems.map(item => (
-            <MenuCard
-              key={item.id}
-              id={item.id}
-              name={item.name}
-              price={item.price}
-              description={item.description}
-              imageUrl={item.imageUrl}
-              onAddToCart={handleAddToCart}
-            />
-          ))}
-
-          {filteredMenuItems.length === 0 && (
-            <div className="col-span-2 py-10 text-center text-muted-foreground">
-              該当するメニューがありません
-            </div>
-          )}
-        </div>
+        {error ? (
+          <div className="p-4 text-center text-destructive">
+            <p>{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-2 text-primary underline"
+            >
+              再読み込み
+            </button>
+          </div>
+        ) : loading ? (
+          <div className="px-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="flex flex-col space-y-2">
+                <Skeleton className="h-40 w-full rounded-md" />
+                <Skeleton className="h-4 w-3/4 rounded-md" />
+                <Skeleton className="h-4 w-full rounded-md" />
+                <Skeleton className="h-4 w-1/2 rounded-md" />
+                <Skeleton className="h-8 w-full rounded-md" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="px-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {menuItems.length > 0 ? (
+              menuItems.map(item => (
+                <MenuCard
+                  key={item.id}
+                  id={item.id.toString()}
+                  documentId={item.documentId}
+                  name={item.name}
+                  price={item.price}
+                  description={item.description || ""}
+                  imageUrl={getImageUrl(item)}
+                  categoryName={getCategoryName(item)}
+                  onAddToCart={() => handleAddToCart(item)}
+                  soldOut={item.soldOut}
+                />
+              ))
+            ) : (
+              <div className="col-span-2 py-10 text-center text-muted-foreground">
+                該当するメニューがありません
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* フッター */}

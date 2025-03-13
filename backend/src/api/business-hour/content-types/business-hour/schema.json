@@ -1,0 +1,42 @@
+{
+  "kind": "collectionType",
+  "collectionName": "business_hours",
+  "info": {
+    "singularName": "business-hour",
+    "pluralName": "business-hours",
+    "displayName": "Business Hour",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "dayOfWeek": {
+      "type": "enumeration",
+      "enum": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ],
+      "required": true
+    },
+    "closeTime": {
+      "type": "time",
+      "required": true,
+      "default": "15:00:00.000"
+    },
+    "openTime": {
+      "type": "time",
+      "required": true,
+      "default": "11:00:00.000"
+    },
+    "isClosed": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}
