@@ -1,77 +1,78 @@
-import { Card, CardContent } from "@/components/ui/card"
+// src/components/menu/order-details.tsx
+import React from "react";
 
-type OrderItem = {
-  id: string
-  name: string
-  price: number
-  quantity: number
-  options?: {
-    name: string
-    value: string
-    price: number
-  }[]
+interface OrderItem {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
 }
 
-type OrderDetailsProps = {
-  items: OrderItem[]
-  subtotal: number
-  total: number
-  notes?: string
+interface OrderDetailsProps {
+  items: OrderItem[];
+  total: number;
+  notes?: string;
 }
 
-export function OrderDetails({ items, subtotal, total, notes }: OrderDetailsProps) {
+export const OrderDetails: React.FC<OrderDetailsProps> = ({
+  items,
+  total,
+  notes
+}) => {
   return (
-    <Card className="w-full mb-4">
-      <CardContent className="p-4">
-        <h3 className="font-semibold text-lg mb-4">注文内容</h3>
-
-        <div className="space-y-4 mb-4">
-          {items.map((item) => (
-            <div key={item.id} className="flex justify-between">
-              <div>
-                <div className="flex gap-2">
-                  <span className="font-medium">{item.name}</span>
-                  <span className="text-muted-foreground">×{item.quantity}</span>
-                </div>
-
-                {item.options && item.options.length > 0 && (
-                  <div className="text-sm text-muted-foreground ml-2 mt-1">
-                    {item.options.map((option, index) => (
-                      <div key={index}>
-                        {option.name}: {option.value}
-                        {option.price > 0 && ` (+¥${option.price.toLocaleString()})`}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="font-medium">
-                ¥{((item.price + (item.options?.reduce((sum, opt) => sum + opt.price, 0) || 0)) * item.quantity).toLocaleString()}
-              </div>
-            </div>
-          ))}
+    <div className="space-y-4">
+      <h3 className="font-semibold text-lg">注文内容</h3>
+      
+      <div className="border rounded-md overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-muted/50">
+            <tr>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                商品
+              </th>
+              <th scope="col" className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                数量
+              </th>
+              <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                金額
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-card divide-y divide-gray-200">
+            {items.map((item) => (
+              <tr key={item.id}>
+                <td className="px-4 py-3 whitespace-nowrap text-sm">
+                  {item.name}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
+                  {item.quantity}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-right">
+                  ¥{(item.price * item.quantity).toLocaleString()}
+                </td>
+              </tr>
+            ))}
+            
+            {/* 合計行 */}
+            <tr className="bg-muted/20">
+              <td colSpan={2} className="px-4 py-3 text-sm font-semibold text-right">
+                合計
+              </td>
+              <td className="px-4 py-3 text-sm font-semibold text-right">
+                ¥{total.toLocaleString()}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      {/* 特記事項 */}
+      {notes && (
+        <div className="mt-4">
+          <h4 className="font-medium text-sm mb-1">特記事項</h4>
+          <p className="text-sm border rounded-md p-3 bg-muted/20">{notes}</p>
         </div>
-
-        <div className="border-t pt-4 space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">小計</span>
-            <span>¥{subtotal.toLocaleString()}</span>
-          </div>
-
-          <div className="flex justify-between font-semibold">
-            <span>合計</span>
-            <span>¥{total.toLocaleString()}</span>
-          </div>
-        </div>
-
-        {notes && notes.trim() !== "" && (
-          <div className="mt-4 border-t pt-4">
-            <h4 className="font-medium mb-2">特記事項</h4>
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{notes}</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
+      )}
+    </div>
+  );
+};
