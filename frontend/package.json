@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@paypayopa/paypayopa-sdk-node": "^2.1.0",
-    "@prisma/client": "^6.4.1",
+    "@prisma/client": "^6.5.0",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-radio-group": "^1.2.3",
@@ -44,7 +44,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.2.1",
-    "prisma": "^6.4.1",
+    "prisma": "^6.5.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5"

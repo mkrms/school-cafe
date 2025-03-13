@@ -10,13 +10,13 @@ export async function GET(
 ) {
   try {
     const id = params.id
-    
+
     // Supabaseクライアントの作成
     const supabase = createServerSupabaseClient()
-    
+
     // セッションの取得
     const { data: { session } } = await supabase.auth.getSession()
-    
+
     // 認証チェック
     if (!session?.user) {
       return NextResponse.json(
@@ -24,7 +24,7 @@ export async function GET(
         { status: 401 }
       )
     }
-    
+
     // 注文データを取得
     const order = await prisma.order.findUnique({
       where: {
@@ -39,7 +39,7 @@ export async function GET(
         payments: true,
       },
     })
-    
+
     // 注文が存在しない場合
     if (!order) {
       return NextResponse.json(
@@ -47,7 +47,7 @@ export async function GET(
         { status: 404 }
       )
     }
-    
+
     // 自分の注文かどうか確認（管理者は例外）
     if (order.user_id !== session.user.id) {
       return NextResponse.json(
@@ -55,7 +55,7 @@ export async function GET(
         { status: 403 }
       )
     }
-    
+
     return NextResponse.json({ data: order })
   } catch (error: any) {
     console.error('Error fetching order:', error)
@@ -73,13 +73,13 @@ export async function DELETE(
 ) {
   try {
     const id = params.id
-    
+
     // Supabaseクライアントの作成
     const supabase = createServerSupabaseClient()
-    
+
     // セッションの取得
     const { data: { session } } = await supabase.auth.getSession()
-    
+
     // 認証チェック
     if (!session?.user) {
       return NextResponse.json(
@@ -87,11 +87,11 @@ export async function DELETE(
         { status: 401 }
       )
     }
-    
+
     // リクエストボディを取得
     const body = await request.json()
     const { cancelReason } = body
-    
+
     // 注文データを取得
     const order = await prisma.order.findUnique({
       where: { id },
@@ -103,7 +103,7 @@ export async function DELETE(
         },
       },
     })
-    
+
     // 注文が存在しない場合
     if (!order) {
       return NextResponse.json(
@@ -111,7 +111,7 @@ export async function DELETE(
         { status: 404 }
       )
     }
-    
+
     // 自分の注文かどうか確認
     if (order.user_id !== session.user.id) {
       return NextResponse.json(
@@ -119,7 +119,7 @@ export async function DELETE(
         { status: 403 }
       )
     }
-    
+
     // 既にキャンセルされているか確認
     if (order.status === 'cancelled') {
       return NextResponse.json(
@@ -127,7 +127,7 @@ export async function DELETE(
         { status: 400 }
       )
     }
-    
+
     // 完了済みの注文はキャンセル不可
     if (order.status === 'completed') {
       return NextResponse.json(
@@ -135,7 +135,7 @@ export async function DELETE(
         { status: 400 }
       )
     }
-    
+
     // トランザクションで注文をキャンセル
     const updatedOrder = await prisma.$transaction(async (tx) => {
       // 注文ステータスを更新
@@ -149,7 +149,7 @@ export async function DELETE(
           order_items: true,
         },
       })
-      
+
       // 在庫を戻す
       for (const item of order.order_items) {
         const menuItem = item.menu_item
@@ -163,10 +163,10 @@ export async function DELETE(
           })
         }
       }
-      
+
       return cancelled
     })
-    
+
     return NextResponse.json({
       data: updatedOrder,
       message: 'Order cancelled successfully',
@@ -187,13 +187,13 @@ export async function PATCH(
 ) {
   try {
     const id = params.id
-    
+
     // Supabaseクライアントの作成
     const supabase = createServerSupabaseClient()
-    
+
     // セッションの取得
     const { data: { session } } = await supabase.auth.getSession()
-    
+
     // 認証チェック
     if (!session?.user) {
       return NextResponse.json(
@@ -201,11 +201,11 @@ export async function PATCH(
         { status: 401 }
       )
     }
-    
+
     // リクエストボディを取得
     const body = await request.json()
     const { status, notes } = body
-    
+
     // ステータスの検証
     const validStatuses = ['pending', 'processing', 'completed', 'cancelled']
     if (status && !validStatuses.includes(status)) {
@@ -214,12 +214,12 @@ export async function PATCH(
         { status: 400 }
       )
     }
-    
+
     // 注文データを取得
     const order = await prisma.order.findUnique({
       where: { id },
     })
-    
+
     // 注文が存在しない場合
     if (!order) {
       return NextResponse.json(
@@ -227,7 +227,7 @@ export async function PATCH(
         { status: 404 }
       )
     }
-    
+
     // 自分の注文かどうか確認
     if (order.user_id !== session.user.id) {
       return NextResponse.json(
@@ -235,7 +235,7 @@ export async function PATCH(
         { status: 403 }
       )
     }
-    
+
     // 注文更新
     const updatedOrder = await prisma.order.update({
       where: { id },
@@ -247,7 +247,7 @@ export async function PATCH(
         order_items: true,
       },
     })
-    
+
     return NextResponse.json({
       data: updatedOrder,
       message: 'Order updated successfully',
