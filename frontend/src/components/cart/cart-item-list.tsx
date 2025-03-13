@@ -1,24 +1,14 @@
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
-
-type CartItem = {
-  id: string
-  name: string
-  price: number
-  quantity: number
-  options?: {
-    name: string
-    value: string
-    price: number
-  }[]
-  imageUrl: string
-}
+import { useCart } from "@/context/cart-context"
+import { CartItem } from "@/types/utils"
 
 type CartItemListProps = {
   items: CartItem[]
 }
 
 export function CartItemList({ items }: CartItemListProps) {
+  
   return (
     <Card className="mb-4">
       <CardContent className="p-4">

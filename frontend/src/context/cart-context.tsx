@@ -1,16 +1,7 @@
 "use client";
 
+import { CartItem } from "@/types/utils";
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-
-// カート内のアイテムの型定義
-export type CartItem = {
-  id: string;
-  documentId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  imageUrl?: string;
-};
 
 // カートコンテキストの型定義
 type CartContextType = {

@@ -1,8 +1,14 @@
-// app/orders/completion/page.tsx
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { QrCodeDisplay } from "@/components/menu/qr-code-display";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle, CheckCircle2, AlertTriangle } from "lucide-react";
 
 // 決済詳細の型定義
 interface PaymentDetails {
@@ -16,7 +22,7 @@ interface PaymentDetails {
   orderDescription: string;
 }
 
-export default function OrderCompletionPage() {
+export default function PaymentCompletionPage() {
   const [paymentStatus, setPaymentStatus] = useState<string>('checking');
   const [orderDetails, setOrderDetails] = useState<PaymentDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -36,17 +42,16 @@ export default function OrderCompletionPage() {
         paymentId,
         merchantPaymentId,
         status,
-        allParams: Object.fromEntries(searchParams.entries())
       });
 
-      console.log('LocalStorage Data:', {
-        pendingPaymentId: localStorage.getItem('pendingPaymentId'),
-        pendingOrderId: localStorage.getItem('pendingOrderId')
+      console.log('SessionStorage Data:', {
+        pendingPaymentId: sessionStorage.getItem('pendingPaymentId'),
+        pendingOrderId: sessionStorage.getItem('pendingOrderId')
       });
 
-      // パラメータがない場合はローカルストレージから取得
-      const pendingPaymentId = localStorage.getItem('pendingPaymentId');
-      const pendingOrderId = localStorage.getItem('pendingOrderId');
+      // パラメータがない場合はセッションストレージから取得
+      const pendingPaymentId = sessionStorage.getItem('pendingPaymentId');
+      const pendingOrderId = sessionStorage.getItem('pendingOrderId');
 
       // merchantPaymentId を優先的に使用
       const merchantPaymentIdToCheck = merchantPaymentId || pendingOrderId;
@@ -77,10 +82,6 @@ export default function OrderCompletionPage() {
           if (paymentData.status === 'COMPLETED') {
             setPaymentStatus('completed');
             setOrderDetails(paymentData);
-
-            // 完了したらストレージをクリア
-            localStorage.removeItem('pendingPaymentId');
-            localStorage.removeItem('pendingOrderId');
 
             // 注文データを更新するAPI呼び出し
             await fetch('/api/update-order', {
@@ -128,156 +129,113 @@ export default function OrderCompletionPage() {
     return () => clearInterval(intervalId);
   }, [paymentId, merchantPaymentId, status, paymentStatus, searchParams]);
 
-  const handleReturnToHome = () => {
+  // セッションストレージをクリアして注文一覧ページに戻る
+  const handleViewOrders = () => {
+    // 完了したらストレージをクリア
+    sessionStorage.removeItem('pendingPaymentId');
+    sessionStorage.removeItem('pendingOrderId');
+    sessionStorage.removeItem('current_order');
+    
+    router.push('/orders');
+  };
+
+  // ホームに戻る
+  const handleReturnHome = () => {
+    // ストレージをクリア
+    sessionStorage.removeItem('pendingPaymentId');
+    sessionStorage.removeItem('pendingOrderId');
+    sessionStorage.removeItem('current_order');
+    
     router.push('/');
   };
 
   return (
-    <div className="order-completion-container">
-      <h1>注文処理状況</h1>
+    <div className="flex flex-col min-h-screen">
+      <Header 
+        title="決済結果" 
+        showBackButton={false}
+      />
 
-      {paymentStatus === 'checking' && (
-        <div className="status-checking">
-          <p>決済状態を確認中です...</p>
-          <div className="loading-spinner"></div>
-        </div>
-      )}
+      <main className="flex-grow p-4">
+        <Card>
+          <CardContent className="p-6">
+            {paymentStatus === 'checking' && (
+              <div className="text-center py-8">
+                <Skeleton className="h-24 w-24 rounded-full mx-auto mb-4" />
+                <h2 className="text-xl font-bold mb-2">決済状態を確認中...</h2>
+                <p className="text-muted-foreground">しばらくお待ちください</p>
+              </div>
+            )}
 
-      {paymentStatus === 'completed' && (
-        <div className="status-completed">
-          <h2>テスト決済完了!</h2>
-          <div className="order-details">
-            <p>注文ID: {orderDetails?.merchantPaymentId || '---'}</p>
-            <p>決済ID: {orderDetails?.paymentId || '---'}</p>
-            <p>決済金額: {orderDetails?.amount?.amount || 0}円</p>
-            <p>決済説明: {orderDetails?.orderDescription || '---'}</p>
+            {paymentStatus === 'completed' && (
+              <div className="text-center py-8">
+                <CheckCircle2 className="h-24 w-24 text-green-500 mx-auto mb-4" />
+                <h2 className="text-xl font-bold mb-4">決済が完了しました！</h2>
+                
+                <div className="mb-6 text-left">
+                  <p className="mb-2"><span className="font-medium">注文番号:</span> {orderDetails?.merchantPaymentId}</p>
+                  <p className="mb-2"><span className="font-medium">決済金額:</span> {orderDetails?.amount?.amount}円</p>
+                </div>
+                
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-4">受け取り用QRコード</h3>
+                  <div className="bg-white p-4 rounded-lg shadow-sm mx-auto" style={{ maxWidth: '250px' }}>
+                    <QrCodeDisplay orderId={orderDetails?.merchantPaymentId || ''} />
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-4">
+                    このQRコードをカウンターでご提示ください
+                  </p>
+                </div>
+                
+                <div className="space-y-3 mt-6">
+                  <Button onClick={handleViewOrders} className="w-full">
+                    注文履歴を見る
+                  </Button>
+                  <Button onClick={handleReturnHome} variant="outline" className="w-full">
+                    ホームに戻る
+                  </Button>
+                </div>
+              </div>
+            )}
 
-            {/* ここに実際のアプリではQRコード表示が入る */}
-            <div className="qr-code-placeholder">
-              <p>テスト環境では注文確認QRコードは表示されません</p>
-            </div>
+            {paymentStatus === 'failed' && (
+              <div className="text-center py-8">
+                <AlertCircle className="h-24 w-24 text-red-500 mx-auto mb-4" />
+                <h2 className="text-xl font-bold mb-4">決済が失敗しました</h2>
+                <p className="text-muted-foreground mb-6">{error}</p>
+                
+                <div className="space-y-3">
+                  <Button onClick={() => router.push('/checkout')} className="w-full">
+                    注文画面に戻る
+                  </Button>
+                  <Button onClick={handleReturnHome} variant="outline" className="w-full">
+                    ホームに戻る
+                  </Button>
+                </div>
+              </div>
+            )}
 
-            <div className="debug-info">
-              <h3>デバッグ情報</h3>
-              <p>支払い状態: {paymentStatus}</p>
-              <p>処理内容: テスト決済の完了確認</p>
-              <p>注: 実際の環境では、この画面で受け取り用QRコードが表示されます</p>
-            </div>
+            {paymentStatus === 'error' && (
+              <div className="text-center py-8">
+                <AlertTriangle className="h-24 w-24 text-yellow-500 mx-auto mb-4" />
+                <h2 className="text-xl font-bold mb-4">エラーが発生しました</h2>
+                <p className="text-muted-foreground mb-6">{error}</p>
+                
+                <div className="space-y-3">
+                  <Button onClick={() => router.push('/checkout')} className="w-full">
+                    注文画面に戻る
+                  </Button>
+                  <Button onClick={handleReturnHome} variant="outline" className="w-full">
+                    ホームに戻る
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </main>
 
-            <button onClick={handleReturnToHome} className="return-button">
-              テストページに戻る
-            </button>
-          </div>
-        </div>
-      )}
-
-      {paymentStatus === 'failed' && (
-        <div className="status-failed">
-          <h2>決済が失敗しました</h2>
-          <p>{error}</p>
-          <button onClick={handleReturnToHome} className="return-button">
-            テストページに戻る
-          </button>
-        </div>
-      )}
-
-      {paymentStatus === 'error' && (
-        <div className="status-error">
-          <h2>エラーが発生しました</h2>
-          <p>{error}</p>
-          <button onClick={handleReturnToHome} className="return-button">
-            テストページに戻る
-          </button>
-        </div>
-      )}
-
-      {/* スタイルは以前と同じなので省略 */}
-      <style jsx>{`
-        .order-completion-container {
-          max-width: 600px;
-          margin: 0 auto;
-          padding: 20px;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-        }
-        
-        h1 {
-          text-align: center;
-          margin-bottom: 30px;
-          color: #333;
-        }
-        
-        .status-checking, .status-completed, .status-failed, .status-error {
-          padding: 20px;
-          border-radius: 8px;
-          background-color: #f9f9f9;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .status-completed {
-          border-left: 4px solid #4CAF50;
-        }
-        
-        .status-failed, .status-error {
-          border-left: 4px solid #F44336;
-        }
-        
-        .loading-spinner {
-          margin: 20px auto;
-          width: 40px;
-          height: 40px;
-          border: 4px solid #f3f3f3;
-          border-top: 4px solid #3498db;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-        }
-        
-        .order-details {
-          margin-top: 20px;
-        }
-        
-        .qr-code-placeholder {
-          margin: 20px auto;
-          padding: 40px;
-          background-color: #eee;
-          border-radius: 4px;
-          text-align: center;
-        }
-        
-        .debug-info {
-          margin: 20px 0;
-          padding: 15px;
-          background-color: #f0f7ff;
-          border-radius: 4px;
-          font-size: 14px;
-        }
-        
-        .debug-info h3 {
-          margin-top: 0;
-          color: #0066cc;
-        }
-        
-        .return-button {
-          margin-top: 20px;
-          padding: 10px 20px;
-          background-color: #4CAF50;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          display: block;
-          width: 100%;
-          font-size: 16px;
-        }
-        
-        .return-button:hover {
-          background-color: #3e8e41;
-        }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+      <Footer />
     </div>
   );
 }
