@@ -1,59 +1,58 @@
-"use client"
+// src/app/menu/[id]/page.tsx
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { use } from "react"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import { getMenuItem, getStrapiMedia } from "@/lib/strapi"
-import { MenuItem } from "@/types/strapi"
-import { ShoppingCart, Plus, Minus } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import { getMenuItem, getStrapiMedia } from "@/lib/strapi";
+import { MenuItem } from "@/types/strapi";
+import { useCart } from "@/context/cart-context";
+import { ShoppingCart, Plus, Minus } from "lucide-react";
+import { toast } from "sonner";
 
 interface MenuDetailPageProps {
-  params: Promise<{
-    id: string
-  }>
+  params: {
+    id: string;
+  };
 }
 
 export default function MenuDetailPage({ params }: MenuDetailPageProps) {
-  // paramsをアンラップ
-  const resolvedParams = use(params)
-  const id = resolvedParams.id
-  
-  const router = useRouter()
-  const [menuItem, setMenuItem] = useState<MenuItem | null>(null)
-  const [quantity, setQuantity] = useState(1)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const id = params.id;
+  const router = useRouter();
+  const { addItem } = useCart();
+  const [menuItem, setMenuItem] = useState<MenuItem | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // メニュー項目を取得
   useEffect(() => {
     const fetchMenuItem = async () => {
       try {
-        setLoading(true)
-        const response = await getMenuItem(id)
-        console.log(response)
+        setLoading(true);
+        const response = await getMenuItem(id);
         
         if (!response.data) {
-          setError("メニュー項目が見つかりませんでした。")
-          setLoading(false)
-          return
+          setError("メニュー項目が見つかりませんでした。");
+          setLoading(false);
+          return;
         }
         
-        setMenuItem(response.data)
-        setLoading(false)
+        setMenuItem(response.data);
+        setLoading(false);
       } catch (err) {
-        console.error("Error fetching menu item:", err)
-        setError("メニュー項目の取得中にエラーが発生しました。")
-        setLoading(false)
+        console.error("Error fetching menu item:", err);
+        setError("メニュー項目の取得中にエラーが発生しました。");
+        setLoading(false);
       }
-    }
+    };
     
-    fetchMenuItem()
-  }, [id])
+    fetchMenuItem();
+  }, [id]);
   
   // 画像URLを取得する関数
   const getImageUrl = (): string => {
@@ -66,18 +65,29 @@ export default function MenuDetailPage({ params }: MenuDetailPageProps) {
     }
     
     return '/images/menu-placeholder.jpg';
-  }
+  };
   
   // カートに追加する処理
   const handleAddToCart = () => {
-    if (!menuItem) return
+    if (!menuItem) return;
     
-    // ここでカートに追加するロジックを実装
-    console.log(`Added to cart: ${menuItem.name} x ${quantity}`)
+    if (menuItem.soldOut) {
+      toast.error("申し訳ありません、この商品は売り切れです");
+      return;
+    }
     
-    // ホーム画面に戻る
-    router.push("/")
-  }
+    addItem({
+      id: menuItem.id.toString(),
+      documentId: menuItem.documentId,
+      name: menuItem.name,
+      price: menuItem.price,
+      quantity: quantity,
+      imageUrl: getImageUrl(),
+    });
+    
+    toast.success(`${menuItem.name}をカートに追加しました`);
+    router.push("/");
+  };
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -188,5 +198,5 @@ export default function MenuDetailPage({ params }: MenuDetailPageProps) {
       
       <Footer />
     </div>
-  )
+  );
 }

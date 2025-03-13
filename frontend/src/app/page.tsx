@@ -1,3 +1,4 @@
+//src/app/page.tsx (メニュー一覧ページ)
 "use client"
 
 import { useState, useEffect } from "react"
@@ -9,14 +10,17 @@ import { Footer } from "@/components/layout/footer"
 import { getMenuCategories, getMenuItems, getMenuItemsByCategory, getStrapiMedia } from "@/lib/strapi"
 import { MenuCategory, MenuItem } from "@/types/strapi"
 import { Skeleton } from "@/components/ui/skeleton"
+import { CartDrawer } from "@/components/cart/cart-drawer"
+import { useCart } from "@/context/cart-context"
+import { toast } from "sonner"
 
 export default function HomePage() {
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
-  const [cartItemCount, setCartItemCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { addItem } = useCart()
 
   // カテゴリーとメニュー項目を取得する
   useEffect(() => {
@@ -92,19 +96,32 @@ export default function HomePage() {
   
   // カテゴリー名を取得する関数
   const getCategoryName = (item: MenuItem): string | null => {
-    return item.menu_category?.name || null;  // 修正: category → menu_category
+    return item.menu_category?.name || null;
   }
   
   // カートに商品を追加する処理
-  const handleAddToCart = (id: string) => {
-    setCartItemCount(prevCount => prevCount + 1)
-    // 実際の実装では、ここでカートに商品を追加するロジックを実装します
+  const handleAddToCart = (item: MenuItem) => {
+    if (item.soldOut) {
+      toast.error("申し訳ありません、この商品は売り切れです");
+      return;
+    }
+    
+    addItem({
+      id: item.id.toString(),
+      documentId: item.documentId,
+      name: item.name,
+      price: item.price,
+      quantity: 1,
+      imageUrl: getImageUrl(item),
+    });
+    
+    toast.success(`${item.name}をカートに追加しました`);
   }
 
   return (
     <div className="min-h-screen flex flex-col">
       {/* ヘッダー */}
-      <Header cartItemCount={cartItemCount} />
+      <Header />
 
       {/* メインコンテンツ */}
       <main className="flex-grow pb-4">
@@ -161,7 +178,7 @@ export default function HomePage() {
                   description={item.description || ""}
                   imageUrl={getImageUrl(item)}
                   categoryName={getCategoryName(item)}
-                  onAddToCart={() => handleAddToCart(item.id.toString())}
+                  onAddToCart={() => handleAddToCart(item)}
                   soldOut={item.soldOut}
                 />
               ))
