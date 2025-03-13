@@ -6,33 +6,8 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet"
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react"
-
-// 仮のカートデータ
-const dummyCartItems = [
-  {
-    id: "1",
-    name: "唐揚げ定食",
-    price: 650,
-    quantity: 1,
-    options: [
-      { name: "ご飯のサイズ", value: "大盛り", price: 50 },
-      { name: "トッピング", value: "温泉卵", price: 80 }
-    ],
-    imageUrl: "/images/menu-placeholder.svg"
-  },
-  {
-    id: "2",
-    name: "カレーライス",
-    price: 500,
-    quantity: 2,
-    options: [
-      { name: "辛さ", value: "中辛", price: 0 }
-    ],
-    imageUrl: "/images/menu-placeholder.svg"
-  }
-]
-
-type CartItem = typeof dummyCartItems[0]
+import { CartItem } from "@/types/utils"
+import { useCart } from "@/context/cart-context"
 
 // 合計金額の計算
 const calculateTotal = (items: CartItem[]) => {
@@ -44,35 +19,20 @@ const calculateTotal = (items: CartItem[]) => {
 }
 
 type CartDrawerProps = {
-  cartItems?: CartItem[]
-  onUpdateQuantity?: (id: string, quantity: number) => void
-  onRemoveItem?: (id: string) => void
   onCheckout?: () => void
 }
 
+const storedCart = localStorage.getItem("cart")
+
 export function CartDrawer({
-  cartItems = dummyCartItems,
-  onUpdateQuantity,
-  onRemoveItem,
   onCheckout
 }: CartDrawerProps) {
+  const { items, removeItem, updateQuantity} = useCart();
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
 
-  const total = calculateTotal(cartItems)
-  const itemCount = cartItems.reduce((count, item) => count + item.quantity, 0)
-
-  const handleUpdateQuantity = (id: string, quantity: number) => {
-    if (onUpdateQuantity) {
-      onUpdateQuantity(id, quantity)
-    }
-  }
-
-  const handleRemoveItem = (id: string) => {
-    if (onRemoveItem) {
-      onRemoveItem(id)
-    }
-  }
+  const total = calculateTotal(items)
+  const itemCount = items.reduce((count, item) => count + item.quantity, 0)
 
   const handleCheckout = () => {
     setIsOpen(false)
@@ -101,7 +61,7 @@ export function CartDrawer({
         </SheetHeader>
 
         <div className="flex-grow overflow-auto">
-          {cartItems.length === 0 ? (
+          {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full py-10 px-4">
               <ShoppingCart className="h-16 w-16 text-muted-foreground mb-4" />
               <p className="text-lg font-medium mb-2">カートが空です</p>
@@ -121,7 +81,7 @@ export function CartDrawer({
             </div>
           ) : (
             <div className="divide-y">
-              {cartItems.map((item) => (
+              {items.map((item) => (
                 <div key={item.id} className="p-4">
                   <div className="flex items-start space-x-3">
                     <div className="relative h-16 w-16 rounded-md overflow-hidden flex-shrink-0">
@@ -138,7 +98,7 @@ export function CartDrawer({
                         <h3 className="font-medium">{item.name}</h3>
                         <button
                           className="text-muted-foreground hover:text-destructive"
-                          onClick={() => handleRemoveItem(item.id)}
+                          onClick={() => removeItem(item.id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -165,7 +125,7 @@ export function CartDrawer({
                             variant="outline"
                             size="icon"
                             className="h-7 w-7"
-                            onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
                             disabled={item.quantity <= 1}
                           >
                             <Minus className="h-3 w-3" />
@@ -175,7 +135,7 @@ export function CartDrawer({
                             variant="outline"
                             size="icon"
                             className="h-7 w-7"
-                            onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
@@ -192,7 +152,7 @@ export function CartDrawer({
           )}
         </div>
 
-        {cartItems.length > 0 && (
+        {items.length > 0 && (
           <div className="border-t p-4 space-y-4">
             <div className="flex justify-between text-lg font-semibold">
               <span>合計</span>

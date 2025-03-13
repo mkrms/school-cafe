@@ -10,7 +10,6 @@ import { Footer } from "@/components/layout/footer"
 import { getMenuCategories, getMenuItems, getMenuItemsByCategory, getStrapiMedia } from "@/lib/strapi"
 import { MenuCategory, MenuItem } from "@/types/strapi"
 import { Skeleton } from "@/components/ui/skeleton"
-import { CartDrawer } from "@/components/cart/cart-drawer"
 import { useCart } from "@/context/cart-context"
 import { toast } from "sonner"
 
