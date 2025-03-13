@@ -1,0 +1,91 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Gakushoku GO API",
+  "dateExported": "2025-03-12T10:00:00.000Z",
+  "version": "1.1",
+  "folders": [
+    {
+      "name": "Orders",
+      "description": "注文関連のエンドポイント",
+      "folders": [],
+      "requests": [
+        {
+          "name": "Get All Orders",
+          "url": "http://localhost:3000/api/orders",
+          "method": "GET",
+          "auth": {
+            "type": "none"
+          },
+          "headers": [],
+          "params": [],
+          "tests": []
+        },
+        {
+          "name": "Get Order By ID",
+          "url": "http://localhost:3000/api/orders/{id}",
+          "method": "GET",
+          "auth": {
+            "type": "none"
+          },
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "value": "",
+              "isPath": true
+            }
+          ],
+          "tests": []
+        },
+        {
+          "name": "Create Order",
+          "url": "http://localhost:3000/api/orders",
+          "method": "POST",
+          "auth": {
+            "type": "none"
+          },
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "type": "json",
+            "raw": "{\n  \"orderItems\": [\n    {\n      \"menuItemId\": 3,\n      \"quantity\": 1\n    }\n  ],\n  \"totalAmount\": 550,\n  \"notes\": \"テスト注文です\"\n}",
+            "form": []
+          },
+          "tests": []
+        },
+        {
+          "name": "Cancel Order",
+          "url": "http://localhost:3000/api/orders/{id}",
+          "method": "DELETE",
+          "auth": {
+            "type": "none"
+          },
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "value": "",
+              "isPath": true
+            }
+          ],
+          "body": {
+            "type": "json",
+            "raw": "{\n  \"cancelReason\": \"テストによるキャンセル\"\n}",
+            "form": []
+          },
+          "tests": []
+        }
+      ]
+    }
+  ],
+  "requests": []
+}
