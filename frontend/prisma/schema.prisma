@@ -35,6 +35,7 @@ model Order {
   user           User        @relation(fields: [user_id], references: [id])
   payments       Payment[]
   print_logs     PrintLog[]
+  print_number Int?
 
   @@map("orders")
 }

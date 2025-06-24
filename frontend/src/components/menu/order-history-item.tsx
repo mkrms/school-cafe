@@ -8,7 +8,7 @@ type OrderHistoryItemProps = {
   id: string
   createdAt: string
   total: number
-  status: "pending" | "preparing" | "ready" | "completed" | "cancelled"
+  status: "created" | "pending" | "preparing" | "ready" | "completed" | "cancelled"
   items: {
     name: string
     quantity: number
@@ -19,16 +19,19 @@ type OrderHistoryItemProps = {
 function formatDate(dateString: string) {
   const date = new Date(dateString)
   return new Intl.DateTimeFormat('ja-JP', {
-    month: 'numeric',
+    year: 'numeric',
+    month: 'numeric', 
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   }).format(date)
 }
 
 // ステータスに応じたラベルと色を取得する関数
 function getStatusInfo(status: OrderHistoryItemProps["status"]) {
   switch (status) {
+    case "created":
+      return { label: "注文作成", color: "bg-gray-100 text-gray-800" }
     case "pending":
       return { label: "支払い待ち", color: "bg-yellow-100 text-yellow-800" }
     case "preparing":
