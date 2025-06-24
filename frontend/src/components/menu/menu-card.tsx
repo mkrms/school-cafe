@@ -1,26 +1,26 @@
 // src/components/menu/menu-card.tsx
-"use client"
+"use client";
 
-import Link from "next/link"
-import Image from "next/image"
-import { ShoppingCart } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import Link from "next/link";
+import Image from "next/image";
+import { ShoppingCart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 interface MenuCardProps {
-  id: string
-  documentId: string
-  name: string
-  price: number
-  description: string
-  imageUrl: string
-  categoryName: string | null
-  onAddToCart: () => void
-  soldOut?: boolean
+  id: string;
+  documentId: string;
+  name: string;
+  price: number;
+  description: string;
+  imageUrl: string;
+  categoryName: string | null;
+  onAddToCart: () => void;
+  soldOut?: boolean;
 }
 
 export function MenuCard({
-  id,
+  // id,
   documentId,
   name,
   price,
@@ -31,13 +31,14 @@ export function MenuCard({
   soldOut = false,
 }: MenuCardProps) {
   // 商品詳細ページへのリンク
-  const detailLink = `/menu/${documentId}`
-  
+  const detailLink = `/menu/${documentId}`;
+
   // 説明文を短くする
-  const truncatedDescription = description.length > 60
-    ? `${description.substring(0, 60)}...`
-    : description
-  
+  const truncatedDescription =
+    description.length > 60
+      ? `${description.substring(0, 60)}...`
+      : description;
+
   return (
     <Card className="overflow-hidden h-full flex flex-col">
       <Link href={detailLink} className="relative">
@@ -55,7 +56,7 @@ export function MenuCard({
               </span>
             </div>
           )}
-          
+
           {categoryName && (
             <span className="absolute top-2 left-2 bg-background/90 px-2 py-0.5 rounded text-xs">
               {categoryName}
@@ -63,7 +64,7 @@ export function MenuCard({
           )}
         </div>
       </Link>
-      
+
       <CardContent className="flex-grow p-3">
         <Link href={detailLink}>
           <h3 className="font-medium line-clamp-2 hover:underline">{name}</h3>
@@ -75,7 +76,7 @@ export function MenuCard({
         )}
         <p className="font-bold mt-2">¥{price.toLocaleString()}</p>
       </CardContent>
-      
+
       <CardFooter className="p-3 pt-0">
         <Button
           size="sm"
@@ -89,5 +90,5 @@ export function MenuCard({
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }

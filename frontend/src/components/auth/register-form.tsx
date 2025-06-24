@@ -1,13 +1,19 @@
 // src/components/auth/register-form.tsx
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { signUpAction } from "@/app/actions"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { signUpAction } from "@/app/actions";
 
 export function RegisterForm() {
   return (
@@ -42,12 +48,7 @@ export function RegisterForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">パスワード</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              required
-            />
+            <Input id="password" name="password" type="password" required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">パスワード（確認）</Label>
@@ -60,7 +61,11 @@ export function RegisterForm() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
-          <Button type="submit" className="w-full mt-3" formAction={signUpAction}>
+          <Button
+            type="submit"
+            className="w-full mt-3"
+            formAction={signUpAction}
+          >
             登録する
           </Button>
           <div className="text-center text-sm">
@@ -72,5 +77,5 @@ export function RegisterForm() {
         </CardFooter>
       </form>
     </Card>
-  )
+  );
 }

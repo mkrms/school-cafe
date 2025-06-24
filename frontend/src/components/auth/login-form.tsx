@@ -1,27 +1,32 @@
 // src/components/auth/login-form.tsx
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { signInAction } from "@/app/actions"
-import { useSearchParams } from "next/navigation"
-import { Alert, AlertDescription } from "../ui/alert"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { signInAction } from "@/app/actions";
+import { useSearchParams } from "next/navigation";
 
 export function LoginForm() {
-
-  const searchParams = useSearchParams()
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const searchParams = useSearchParams();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const error = searchParams.get("error")
+    const error = searchParams.get("error");
     if (error) {
-      setErrorMessage(error)
+      setErrorMessage(error);
     }
-  }, [searchParams])
+  }, [searchParams]);
 
   return (
     <>
@@ -51,16 +56,15 @@ export function LoginForm() {
                   パスワードを忘れた場合
                 </Link>
               </div>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                required
-              />
+              <Input id="password" name="password" type="password" required />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full mt-3" formAction={signInAction}>
+            <Button
+              type="submit"
+              className="w-full mt-3"
+              formAction={signInAction}
+            >
               ログイン
             </Button>
             <div className="text-center text-sm">
@@ -75,11 +79,9 @@ export function LoginForm() {
 
       <div>
         {errorMessage && (
-          <div className="px-6 pt-2 text-red-700">
-            {errorMessage}
-          </div>
+          <div className="px-6 pt-2 text-red-700">{errorMessage}</div>
         )}
       </div>
     </>
-  )
+  );
 }

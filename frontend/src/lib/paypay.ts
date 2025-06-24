@@ -31,35 +31,40 @@ export interface OrderData {
 /**
  * PayPay決済のリクエストを作成
  */
-export async function createPayPayPayment(orderData: OrderData): Promise<PayPayResponse> {
+export async function createPayPayPayment(
+  orderData: OrderData
+): Promise<PayPayResponse> {
   try {
     // PayPayのリクエスト形式に変換
     const paymentRequest: PayPayOrderRequest = {
       orderId: orderData.orderId,
       amount: orderData.totalAmount,
-      items: orderData.items.map(item => ({
+      items: orderData.items.map((item) => ({
         name: item.name,
         quantity: item.quantity,
-        price: item.price
+        price: item.price,
       })),
-      description: `Gakushoku GO 注文 #${orderData.orderId}`
+      description: `Gakushoku GO 注文 #${orderData.orderId}`,
     };
 
     // PayPay API呼び出し
-    const response = await fetch('/api/create-payment', {
-      method: 'POST',
+    const response = await fetch("/api/create-payment", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(paymentRequest),
     });
 
     return await response.json();
   } catch (error) {
-    console.error('PayPay payment creation error:', error);
+    console.error("PayPay payment creation error:", error);
     return {
-      status: 'error',
-      error: error instanceof Error ? error.message : '決済処理中にエラーが発生しました'
+      status: "error",
+      error:
+        error instanceof Error
+          ? error.message
+          : "決済処理中にエラーが発生しました",
     };
   }
 }
@@ -67,15 +72,23 @@ export async function createPayPayPayment(orderData: OrderData): Promise<PayPayR
 /**
  * PayPay決済状態確認
  */
-export async function checkPayPayPaymentStatus(merchantPaymentId: string): Promise<any> {
+export async function checkPayPayPaymentStatus(
+  merchantPaymentId: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<any> {
   try {
-    const response = await fetch(`/api/payment-status?merchantPaymentId=${merchantPaymentId}`);
+    const response = await fetch(
+      `/api/payment-status?merchantPaymentId=${merchantPaymentId}`
+    );
     return await response.json();
   } catch (error) {
-    console.error('PayPay status check error:', error);
+    console.error("PayPay status check error:", error);
     return {
-      status: 'error',
-      error: error instanceof Error ? error.message : '決済状態確認中にエラーが発生しました'
+      status: "error",
+      error:
+        error instanceof Error
+          ? error.message
+          : "決済状態確認中にエラーが発生しました",
     };
   }
 }
@@ -83,25 +96,33 @@ export async function checkPayPayPaymentStatus(merchantPaymentId: string): Promi
 /**
  * 注文状態の更新
  */
-export async function updateOrderStatus(orderId: string, paymentId: string, status: string): Promise<any> {
+export async function updateOrderStatus(
+  orderId: string,
+  paymentId: string,
+  status: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<any> {
   try {
-    const response = await fetch('/api/update-order', {
-      method: 'POST',
+    const response = await fetch("/api/update-order", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         orderId,
         paymentId,
-        status
+        status,
       }),
     });
     return await response.json();
   } catch (error) {
-    console.error('Order update error:', error);
+    console.error("Order update error:", error);
     return {
-      status: 'error',
-      error: error instanceof Error ? error.message : '注文更新中にエラーが発生しました'
+      status: "error",
+      error:
+        error instanceof Error
+          ? error.message
+          : "注文更新中にエラーが発生しました",
     };
   }
 }

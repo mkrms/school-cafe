@@ -37,7 +37,7 @@ export default function ProfilePage() {
 
     fetchCurrentUser();
   }, []);
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSaveProfile = async (updatedProfile: any) => {
     if (!userId) return;
 
@@ -81,9 +81,7 @@ export default function ProfilePage() {
             isLoading={savingProfile}
           />
         ) : (
-          <div className="text-center py-12">
-            ログインが必要です
-          </div>
+          <div className="text-center py-12">ログインが必要です</div>
         )}
         <div className="mt-6">
           <Button
@@ -96,7 +94,6 @@ export default function ProfilePage() {
           </Button>
         </div>
       </main>
-
 
       <Footer />
     </div>

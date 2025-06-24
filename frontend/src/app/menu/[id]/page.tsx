@@ -1,7 +1,7 @@
 // src/app/menu/[id]/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -15,33 +15,34 @@ import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 
 interface MenuDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function MenuDetailPage({ params }: MenuDetailPageProps) {
-  const id = params.id;
+  const unwrappedParams = use(params);
+  const id = unwrappedParams.id;
   const router = useRouter();
   const { addItem } = useCart();
   const [menuItem, setMenuItem] = useState<MenuItem | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // メニュー項目を取得
   useEffect(() => {
     const fetchMenuItem = async () => {
       try {
         setLoading(true);
         const response = await getMenuItem(id);
-        
+
         if (!response.data) {
           setError("メニュー項目が見つかりませんでした。");
           setLoading(false);
           return;
         }
-        
+
         setMenuItem(response.data);
         setLoading(false);
       } catch (err) {
@@ -50,32 +51,37 @@ export default function MenuDetailPage({ params }: MenuDetailPageProps) {
         setLoading(false);
       }
     };
-    
+
     fetchMenuItem();
   }, [id]);
-  
+
   // 画像URLを取得する関数
   const getImageUrl = (): string => {
-    if (!menuItem) return '/images/menu-placeholder.jpg';
-    
+    if (!menuItem) return "/images/menu-placeholder.jpg";
+
     if (menuItem.image?.formats?.medium?.url) {
-      return getStrapiMedia(menuItem.image.formats.medium.url) || '/images/menu-placeholder.jpg';
+      return (
+        getStrapiMedia(menuItem.image.formats.medium.url) ||
+        "/images/menu-placeholder.jpg"
+      );
     } else if (menuItem.image?.url) {
-      return getStrapiMedia(menuItem.image.url) || '/images/menu-placeholder.jpg';
+      return (
+        getStrapiMedia(menuItem.image.url) || "/images/menu-placeholder.jpg"
+      );
     }
-    
-    return '/images/menu-placeholder.jpg';
+
+    return "/images/menu-placeholder.jpg";
   };
-  
+
   // カートに追加する処理
   const handleAddToCart = () => {
     if (!menuItem) return;
-    
+
     if (menuItem.soldOut) {
       toast.error("申し訳ありません、この商品は売り切れです");
       return;
     }
-    
+
     addItem({
       id: menuItem.id.toString(),
       documentId: menuItem.documentId,
@@ -84,19 +90,19 @@ export default function MenuDetailPage({ params }: MenuDetailPageProps) {
       quantity: quantity,
       imageUrl: getImageUrl(),
     });
-    
+
     toast.success(`${menuItem.name}をカートに追加しました`);
     router.push("/");
   };
-  
+
   return (
     <div className="flex flex-col min-h-screen">
-      <Header 
-        showBackButton={true} 
-        title="メニュー詳細" 
+      <Header
+        showBackButton={true}
+        title="メニュー詳細"
         onBackClick={() => router.back()}
       />
-      
+
       {loading ? (
         // ローディング表示
         <main className="flex-grow">
@@ -136,12 +142,14 @@ export default function MenuDetailPage({ params }: MenuDetailPageProps) {
               </div>
             )}
           </div>
-          
+
           <div className="p-4">
             <h1 className="text-2xl font-bold">{menuItem.name}</h1>
-            <p className="text-xl font-bold mt-1 mb-3">¥{menuItem.price.toLocaleString()}</p>
+            <p className="text-xl font-bold mt-1 mb-3">
+              ¥{menuItem.price.toLocaleString()}
+            </p>
             <p className="text-muted-foreground mb-6">{menuItem.description}</p>
-            
+
             {/* カテゴリー表示 */}
             {menuItem.menu_category && (
               <div className="mb-6">
@@ -150,7 +158,7 @@ export default function MenuDetailPage({ params }: MenuDetailPageProps) {
                 </span>
               </div>
             )}
-            
+
             {/* 数量選択 */}
             <div className="flex justify-between items-center mb-6">
               <span className="font-medium">数量</span>
@@ -176,12 +184,14 @@ export default function MenuDetailPage({ params }: MenuDetailPageProps) {
                 </Button>
               </div>
             </div>
-            
+
             {/* 合計金額と注文ボタン */}
             <div className="sticky bottom-4 bg-background pt-4">
               <div className="flex justify-between items-center mb-3">
                 <span className="font-medium">合計</span>
-                <span className="text-xl font-bold">¥{(menuItem.price * quantity).toLocaleString()}</span>
+                <span className="text-xl font-bold">
+                  ¥{(menuItem.price * quantity).toLocaleString()}
+                </span>
               </div>
               <Button
                 onClick={handleAddToCart}
@@ -195,7 +205,7 @@ export default function MenuDetailPage({ params }: MenuDetailPageProps) {
           </div>
         </main>
       ) : null}
-      
+
       <Footer />
     </div>
   );

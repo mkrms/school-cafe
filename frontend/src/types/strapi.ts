@@ -9,6 +9,7 @@ export interface StrapiResponse<T> {
 // 単一レスポンス用
 export interface StrapiSingleResponse<T> {
   data: T;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   meta: Record<string, any>;
 }
 
@@ -69,12 +70,13 @@ export interface MenuItem {
     url: string;
     previewUrl: string | null;
     provider: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     provider_metadata: any | null;
     createdAt: string;
     updatedAt: string;
     publishedAt: string;
   };
-  menu_category?: MenuCategory;  // 修正: category → menu_category
+  menu_category?: MenuCategory; // 修正: category → menu_category
 }
 
 // 画像フォーマット型
@@ -95,7 +97,14 @@ interface ImageFormat {
 export interface BusinessHour {
   id: number;
   documentId: string;
-  dayOfWeek: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
+  dayOfWeek:
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday"
+    | "Sunday";
   openTime: string;
   closeTime: string;
   isClosed: boolean;

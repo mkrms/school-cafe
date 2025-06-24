@@ -1,52 +1,61 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet"
-import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react"
-import { CartItem } from "@/types/utils"
-import { useCart } from "@/context/cart-context"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { CartItem } from "@/types/utils";
+import { useCart } from "@/context/cart-context";
 
 // 合計金額の計算
 const calculateTotal = (items: CartItem[]) => {
   return items.reduce((sum, item) => {
-    const optionsPrice = item.options ?
-      item.options.reduce((optSum, opt) => optSum + opt.price, 0) : 0
-    return sum + ((item.price + optionsPrice) * item.quantity)
-  }, 0)
-}
+    const optionsPrice = item.options
+      ? item.options.reduce((optSum, opt) => optSum + opt.price, 0)
+      : 0;
+    return sum + (item.price + optionsPrice) * item.quantity;
+  }, 0);
+};
 
 type CartDrawerProps = {
-  onCheckout?: () => void
-}
+  onCheckout?: () => void;
+};
 
-const storedCart = localStorage.getItem("cart")
+// const storedCart = localStorage.getItem("cart");
 
-export function CartDrawer({
-  onCheckout
-}: CartDrawerProps) {
-  const { items, removeItem, updateQuantity} = useCart();
-  const router = useRouter()
-  const [isOpen, setIsOpen] = useState(false)
+export function CartDrawer({ onCheckout }: CartDrawerProps) {
+  const { items, removeItem, updateQuantity } = useCart();
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
 
-  const total = calculateTotal(items)
-  const itemCount = items.reduce((count, item) => count + item.quantity, 0)
+  const total = calculateTotal(items);
+  const itemCount = items.reduce((count, item) => count + item.quantity, 0);
 
   const handleCheckout = () => {
-    setIsOpen(false)
+    setIsOpen(false);
     if (onCheckout) {
-      onCheckout()
+      onCheckout();
     } else {
-      router.push("/checkout")
+      router.push("/checkout");
     }
-  }
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="relative h-10 w-10 rounded-full">
+        <Button
+          variant="outline"
+          size="icon"
+          className="relative h-10 w-10 rounded-full"
+        >
           <ShoppingCart className="h-5 w-5" />
           {itemCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground w-5 h-5 flex items-center justify-center text-xs font-bold rounded-full">
@@ -72,8 +81,8 @@ export function CartDrawer({
                 variant="outline"
                 className="mt-2"
                 onClick={() => {
-                  setIsOpen(false)
-                  router.push("/")
+                  setIsOpen(false);
+                  router.push("/");
                 }}
               >
                 メニューを見る
@@ -113,7 +122,8 @@ export function CartDrawer({
                           {item.options.map((option, index) => (
                             <div key={index}>
                               {option.name}: {option.value}
-                              {option.price > 0 && ` (+¥${option.price.toLocaleString()})`}
+                              {option.price > 0 &&
+                                ` (+¥${option.price.toLocaleString()})`}
                             </div>
                           ))}
                         </div>
@@ -125,23 +135,37 @@ export function CartDrawer({
                             variant="outline"
                             size="icon"
                             className="h-7 w-7"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity - 1)
+                            }
                             disabled={item.quantity <= 1}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
-                          <span className="w-5 text-center text-sm">{item.quantity}</span>
+                          <span className="w-5 text-center text-sm">
+                            {item.quantity}
+                          </span>
                           <Button
                             variant="outline"
                             size="icon"
                             className="h-7 w-7"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity + 1)
+                            }
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
                         </div>
                         <span className="font-medium">
-                          ¥{((item.price + (item.options?.reduce((sum, opt) => sum + opt.price, 0) || 0)) * item.quantity).toLocaleString()}
+                          ¥
+                          {(
+                            (item.price +
+                              (item.options?.reduce(
+                                (sum, opt) => sum + opt.price,
+                                0
+                              ) || 0)) *
+                            item.quantity
+                          ).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -158,15 +182,12 @@ export function CartDrawer({
               <span>合計</span>
               <span>¥{total.toLocaleString()}</span>
             </div>
-            <Button
-              className="w-full h-12"
-              onClick={handleCheckout}
-            >
+            <Button className="w-full h-12" onClick={handleCheckout}>
               注文確認へ進む
             </Button>
           </div>
         )}
       </SheetContent>
     </Sheet>
-  )
+  );
 }

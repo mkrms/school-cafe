@@ -1,7 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
 
 // 注文アイテムの型定義
 interface OrderItem {
@@ -21,22 +20,21 @@ interface Order {
 // PayPay決済テストページ
 export default function PaymentTestPage() {
   // テスト用の注文データを作成
-  const [testOrder, setTestOrder] = useState<Order>({
+  const [testOrder] = useState<Order>({
     orderNumber: `TEST-${Date.now()}`,
     items: [
       {
-        id: 'test-item-1',
-        name: 'テスト商品 1円',
+        id: "test-item-1",
+        name: "テスト商品 1円",
         quantity: 1,
-        price: 1
-      }
+        price: 1,
+      },
     ],
-    totalAmount: 1 // 1円で設定
+    totalAmount: 1, // 1円で設定
   });
 
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   // 注文ID生成ヘルパー関数
   const generateOrderId = (): string => {
@@ -54,34 +52,34 @@ export default function PaymentTestPage() {
         orderId: generateOrderId(),
         amount: testOrder.totalAmount,
         items: testOrder.items,
-        description: '学食注文テスト #' + testOrder.orderNumber
+        description: "学食注文テスト #" + testOrder.orderNumber,
       };
 
-      console.log('送信データ:', orderData);
+      console.log("送信データ:", orderData);
 
       // サーバーサイドAPIを呼び出し、PayPayのQRコード情報を取得
-      const response = await fetch('/api/create-payment', {
-        method: 'POST',
+      const response = await fetch("/api/create-payment", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(orderData),
       });
 
       const result = await response.json();
-      console.log('APIレスポンス:', result);
+      console.log("APIレスポンス:", result);
 
-      if (result.status === 'success') {
+      if (result.status === "success") {
         // 決済情報をローカルストレージに保存（状態確認用）
         // 注: pendingPaymentId は PayPay の決済ID
         // 注: pendingOrderId は merchantPaymentId として使用
-        localStorage.setItem('pendingPaymentId', result.data.paymentId);
-        localStorage.setItem('pendingOrderId', orderData.orderId);
+        localStorage.setItem("pendingPaymentId", result.data.paymentId);
+        localStorage.setItem("pendingOrderId", orderData.orderId);
 
         // デバッグ用にストレージ内容確認
-        console.log('ローカルストレージ保存内容:', {
-          pendingPaymentId: localStorage.getItem('pendingPaymentId'),
-          pendingOrderId: localStorage.getItem('pendingOrderId')
+        console.log("ローカルストレージ保存内容:", {
+          pendingPaymentId: localStorage.getItem("pendingPaymentId"),
+          pendingOrderId: localStorage.getItem("pendingOrderId"),
         });
 
         // PayPayアプリを起動するためのディープリンクを使用
@@ -94,11 +92,13 @@ export default function PaymentTestPage() {
           window.location.href = result.data.url;
         }, 5000);
       } else {
-        throw new Error(result.error || '決済リクエストに失敗しました');
+        throw new Error(result.error || "決済リクエストに失敗しました");
       }
     } catch (err) {
-      console.error('Payment error:', err);
-      setError(err instanceof Error ? err.message : '決済処理中にエラーが発生しました');
+      console.error("Payment error:", err);
+      setError(
+        err instanceof Error ? err.message : "決済処理中にエラーが発生しました"
+      );
       setIsProcessing(false);
     }
   };
@@ -110,12 +110,16 @@ export default function PaymentTestPage() {
       <div className="test-order-details">
         <h2>テスト注文詳細</h2>
         <div className="order-info">
-          <p><strong>注文番号:</strong> {testOrder.orderNumber}</p>
-          <p><strong>合計金額:</strong> {testOrder.totalAmount}円</p>
+          <p>
+            <strong>注文番号:</strong> {testOrder.orderNumber}
+          </p>
+          <p>
+            <strong>合計金額:</strong> {testOrder.totalAmount}円
+          </p>
 
           <h3>注文商品:</h3>
           <ul>
-            {testOrder.items.map(item => (
+            {testOrder.items.map((item) => (
               <li key={item.id}>
                 {item.name} - {item.price}円 × {item.quantity}
               </li>
@@ -128,16 +132,12 @@ export default function PaymentTestPage() {
         <button
           onClick={handlePaymentRequest}
           disabled={isProcessing}
-          className={`payment-button ${isProcessing ? 'processing' : ''}`}
+          className={`payment-button ${isProcessing ? "processing" : ""}`}
         >
-          {isProcessing ? '処理中...' : 'PayPay決済テスト (1円)'}
+          {isProcessing ? "処理中..." : "PayPay決済テスト (1円)"}
         </button>
 
-        {error && (
-          <div className="error-message">
-            エラー: {error}
-          </div>
-        )}
+        {error && <div className="error-message">エラー: {error}</div>}
       </div>
 
       <div className="debug-info">
@@ -151,39 +151,41 @@ export default function PaymentTestPage() {
           max-width: 600px;
           margin: 0 auto;
           padding: 20px;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
+            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
+            sans-serif;
         }
-        
+
         h1 {
           color: #333;
           border-bottom: 2px solid #eaeaea;
           padding-bottom: 10px;
           margin-bottom: 20px;
         }
-        
+
         .test-order-details {
           background-color: #f9f9f9;
           border-radius: 8px;
           padding: 20px;
           margin-bottom: 30px;
         }
-        
+
         .order-info {
           margin-top: 15px;
         }
-        
+
         .order-info ul {
           padding-left: 20px;
         }
-        
+
         .order-info li {
           margin-bottom: 8px;
         }
-        
+
         .payment-action {
           margin: 30px 0;
         }
-        
+
         .payment-button {
           background-color: #ff0033;
           color: white;
@@ -196,16 +198,16 @@ export default function PaymentTestPage() {
           transition: background-color 0.3s;
           width: 100%;
         }
-        
+
         .payment-button:hover {
           background-color: #e60030;
         }
-        
+
         .payment-button.processing {
           background-color: #888;
           cursor: not-allowed;
         }
-        
+
         .error-message {
           color: #ff0033;
           margin-top: 15px;
@@ -214,7 +216,7 @@ export default function PaymentTestPage() {
           border-radius: 4px;
           border-left: 4px solid #ff0033;
         }
-        
+
         .debug-info {
           margin-top: 40px;
           padding: 15px;
@@ -222,7 +224,7 @@ export default function PaymentTestPage() {
           border-radius: 4px;
           font-size: 14px;
         }
-        
+
         .debug-info h3 {
           margin-top: 0;
           color: #0066cc;

@@ -1,31 +1,38 @@
 // src/lib/strapi.ts
-import qs from 'qs';
-import { StrapiResponse, StrapiSingleResponse } from '@/types/strapi';
+import qs from "qs";
+import { StrapiResponse, StrapiSingleResponse } from "@/types/strapi";
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1338';
-const API_TOKEN = process.env.STRAPI_API_TOKEN || '';
+const STRAPI_URL =
+  process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1338";
+const API_TOKEN = process.env.STRAPI_API_TOKEN || "";
 
 /**
  * 基本的なStrapiのfetch関数
  */
-export async function fetchAPI<T>(path: string, urlParamsObject = {}, options = {}): Promise<T> {
+export async function fetchAPI<T>(
+  path: string,
+  urlParamsObject = {},
+  options = {}
+): Promise<T> {
   try {
     // クエリパラメータの構築
     const queryString = qs.stringify(urlParamsObject, {
       encodeValuesOnly: true, // リレーションフィルタを正しく動作させるため
     });
-    
+
     // URLの構築
-    const requestUrl = `${STRAPI_URL}/api${path}${queryString ? `?${queryString}` : ''}`;
-    
+    const requestUrl = `${STRAPI_URL}/api${path}${
+      queryString ? `?${queryString}` : ""
+    }`;
+
     // デバッグ用
     console.log(`API Request: ${requestUrl}`);
-    console.log('Params:', urlParamsObject);
-    
+    console.log("Params:", urlParamsObject);
+
     // fetch options
     const mergedOptions = {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${API_TOKEN}`,
       },
       ...options,
@@ -33,19 +40,19 @@ export async function fetchAPI<T>(path: string, urlParamsObject = {}, options = 
 
     // fetchの実行
     const response = await fetch(requestUrl, mergedOptions);
-    
+
     // レスポンスの確認
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API error:', errorText);
+      console.error("API error:", errorText);
       throw new Error(`API error: ${response.status} - ${errorText}`);
     }
-    
+
     // JSONデータの取得
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching API:', error);
+    console.error("Error fetching API:", error);
     throw error;
   }
 }
@@ -54,9 +61,10 @@ export async function fetchAPI<T>(path: string, urlParamsObject = {}, options = 
  * メニューカテゴリーの取得
  */
 export function getMenuCategories(params = {}) {
-  return fetchAPI<StrapiResponse<any>>('/menu-categories', {
-    populate: 'menu_items',  // メニュー項目を取得
-    sort: ['displayOrder:asc'],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return fetchAPI<StrapiResponse<any>>("/menu-categories", {
+    populate: "menu_items", // メニュー項目を取得
+    sort: ["displayOrder:asc"],
     filters: {
       isActive: {
         $eq: true,
@@ -70,9 +78,10 @@ export function getMenuCategories(params = {}) {
  * メニュー項目の取得
  */
 export function getMenuItems(params = {}) {
-  return fetchAPI<StrapiResponse<any>>('/menu-items', {
-    populate: ['image', 'menu_category'],  // 修正: category → menu_category
-    sort: ['name:asc'],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return fetchAPI<StrapiResponse<any>>("/menu-items", {
+    populate: ["image", "menu_category"], // 修正: category → menu_category
+    sort: ["name:asc"],
     filters: {
       isActive: {
         $eq: true,
@@ -86,14 +95,16 @@ export function getMenuItems(params = {}) {
  * 特定のカテゴリーに属するメニュー項目の取得
  */
 export function getMenuItemsByCategory(categoryId: number, params = {}) {
-  return fetchAPI<StrapiResponse<any>>('/menu-items', {
-    populate: ['image', 'menu_category'],  // 修正: category → menu_category
-    sort: ['name:asc'],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return fetchAPI<StrapiResponse<any>>("/menu-items", {
+    populate: ["image", "menu_category"], // 修正: category → menu_category
+    sort: ["name:asc"],
     filters: {
       isActive: {
         $eq: true,
       },
-      menu_category: {  // 修正: category → menu_category
+      menu_category: {
+        // 修正: category → menu_category
         id: {
           $eq: categoryId,
         },
@@ -107,8 +118,9 @@ export function getMenuItemsByCategory(categoryId: number, params = {}) {
  * 特定のメニュー項目を取得
  */
 export function getMenuItem(documentId: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return fetchAPI<StrapiSingleResponse<any>>(`/menu-items/${documentId}`, {
-    populate: ['image', 'menu_category'],  // 修正: category → menu_category
+    populate: ["image", "menu_category"], // 修正: category → menu_category
   });
 }
 
@@ -117,10 +129,10 @@ export function getMenuItem(documentId: string) {
  */
 export function getStrapiMedia(url: string | null) {
   if (!url) return null;
-  
+
   // URLが絶対URLの場合はそのまま返す
-  if (url.startsWith('http') || url.startsWith('//')) return url;
-  
+  if (url.startsWith("http") || url.startsWith("//")) return url;
+
   // 相対URLの場合はStrapi URLを付与
   return `${STRAPI_URL}${url}`;
 }
@@ -129,8 +141,9 @@ export function getStrapiMedia(url: string | null) {
  * 営業時間の取得
  */
 export function getBusinessHours() {
-  return fetchAPI<StrapiResponse<any>>('/business-hours', {
-    sort: ['dayOfWeek:asc'],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return fetchAPI<StrapiResponse<any>>("/business-hours", {
+    sort: ["dayOfWeek:asc"],
   });
 }
 
@@ -140,14 +153,14 @@ export function getBusinessHours() {
 export function getSpecialBusinessDays(params = {}) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
-  return fetchAPI<StrapiResponse<any>>('/special-business-days', {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return fetchAPI<StrapiResponse<any>>("/special-business-days", {
     filters: {
       specialDate: {
-        $gte: today.toISOString().split('T')[0],
+        $gte: today.toISOString().split("T")[0],
       },
     },
-    sort: ['specialDate:asc'],
+    sort: ["specialDate:asc"],
     ...params,
   });
 }
