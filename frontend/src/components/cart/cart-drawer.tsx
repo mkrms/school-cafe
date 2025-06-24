@@ -22,7 +22,9 @@ type CartDrawerProps = {
   onCheckout?: () => void
 }
 
-const storedCart = localStorage.getItem("cart")
+if(typeof window !== "undefined"){
+  const storedCart = localStorage.getItem("cart")
+}
 
 export function CartDrawer({
   onCheckout
